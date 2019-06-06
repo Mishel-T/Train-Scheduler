@@ -1,5 +1,3 @@
-//closing notes, need to study moment.js to take HH:mm and convert to something moment can use
-//then need to use firstTrain Time and frequency to calculate next arrival and minutes away - use train-example file
 var config = { 
     apiKey: "AIzaSyCLYXKAmcgK4-KmIm_hke-cTmoWLmGqFE0",
     authDomain: "fir-click-counter-7cdb9.firebaseapp.com",
@@ -48,7 +46,7 @@ database.ref().on("child_added", function(childSnapshot) {
     // Log everything that's coming out of snapshot
     console.log(childSnapshot.val());
 
-    // Store everything into a variable.
+    // Store everything in a variable.
   var trainName = childSnapshot.val().name;
   var destination = childSnapshot.val().destination;
   var firstTrain = childSnapshot.val().firstTrain;
@@ -59,25 +57,31 @@ database.ref().on("child_added", function(childSnapshot) {
   var firstTrainConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
   console.log(firstTrainConverted);
 
+  //not working - currently logging firstTrain as the nextArrival - fixed
   var nextArrival = moment(firstTrainConverted).add(frequency, "minutes").format("hh:mm a");
   console.log(nextArrival)
 
+  var nextArrivalConverted = moment(nextArrival, "HH:mm").subtract(1, "years");
 
 
-  // Difference between the times
-    var diffTime = moment().diff(moment(firstTrainConverted), "minutes");
+
+  // Difference between now and the next arrival to calculate minutes away of nextArrival
+    var diffTime = moment().diff(moment(nextArrivalConverted), "minutes");
     console.log("DIFFERENCE IN TIME: " + diffTime);
 
     // Time apart (remainder)
     var tRemainder = diffTime % frequency;
     console.log(tRemainder);
 
-    // Minute Until Train - working
+    // Minutes Until Train - not working - have no idea where it's calculating from  - working!
     var tMinutesTillTrain = frequency - tRemainder;
     console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain)
 
-//working so far on submission, but need to then calculate nextArrival from the last nextArrival logged 
-//once current time>arrival time (if statement?)
+    //working! next arrival calculated according to frequency and first train vs current time
+    //but need to refresh page to show nextArrival
+    var nextArrival = moment().add(tMinutesTillTrain, "minutes").format("hh:mm a");
+
+
   // Create the new row
   var newRow = $("<tr>").append(
     $("<td>").text(trainName),
